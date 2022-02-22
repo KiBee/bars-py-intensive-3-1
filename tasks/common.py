@@ -16,13 +16,14 @@ def factorial(number):
         product - int - факториал от number
     """
     product = 1
-    for element in range(1, number+1):
+    for element in range(1, number + 1):
         product *= element
 
     return product
 
 
 FOO = [2, 1, 0, 0]
+
 
 def specific_func():
     global FOO
@@ -31,8 +32,3 @@ def specific_func():
     FOO = [2, 1, 0, 0]
 
     return res
-
-
-
-
-
