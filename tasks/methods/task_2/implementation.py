@@ -2,24 +2,27 @@ from tasks.common import MyException
 
 
 class ClassFather:
-    registered_list = []
     _name = None
+    registered_list = []
 
-    def get_name(self, ):
-        if self not in self.registered_list or self._name is None:
+    @classmethod
+    def get_name(cls):
+        if cls not in cls.registered_list:
             raise MyException
         else:
-            return self._name
+            return cls._name
 
-    def register(self):
-        if self._name is None:
+    @classmethod
+    def register(cls):
+        if issubclass(cls, ClassFather) and cls is not ClassFather:
+            cls.registered_list.append(cls)
+        else:
             raise MyException
-        self.registered_list.append(self)
-        pass
 
 
 class User1(ClassFather):
-    _name = 'Huey'
+    _name = 'Billy'
+
 
 class User2(ClassFather):
     _name = 'Dewey'

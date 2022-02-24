@@ -15,12 +15,16 @@ def decorator_maker(times, delay):
 
     def decorator(func):
 
-        def wrapper(*args,**kwargs):
+        def wrapper(*args, **kwargs):
 
             for i in range(times):
                 try:
                     res = func()
-                    return res
+                    if bool(res):
+                        return res
+
+                    raise Exception
+
                 except Exception:
                     sleep(delay)
 

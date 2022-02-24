@@ -12,4 +12,9 @@ def counter(func):
         func(*args, **kwargs)
         return counter.count
 
+    """ 
+    Использование counter перед count явно говорит о том, что используется 
+    поле внешней функции counter. Вместо этого можно было использовать nonlocal, 
+    но такой метод более наглядный на мой взгляд.
+    """
     return wrapper

@@ -8,9 +8,9 @@ def check_value(func):
     в противном случае - выбрасывает исключение MyException.
     """
 
-    def wrapper(*args, **kwargs):
-        if all(isinstance(arg, int) and arg >= 0 for arg in args):
-            res = func(*args, **kwargs)
+    def wrapper(arg):
+        if type(arg) == int and arg >= 0:
+            res = func(arg)
         else:
             raise MyException
 
@@ -22,12 +22,12 @@ def check_value(func):
 def cash_factorial(func):
     factorial_values_dict = {}
 
-    def wrapper(*args, **kwargs):
-        if args in factorial_values_dict:
-            res = factorial_values_dict[args]
+    def wrapper(arg):
+        if arg in factorial_values_dict:
+            res = factorial_values_dict[arg]
         else:
-            res = func(*args, **kwargs)
-            factorial_values_dict[args] = res
+            res = func(arg)
+            factorial_values_dict[arg] = res
 
         return res
 

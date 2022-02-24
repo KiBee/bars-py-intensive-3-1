@@ -9,7 +9,7 @@ class Coffee:
     def get_cappucino(cls, *args, **kwargs):
         cappucino = cls(espresso=30,
                         milk=120,
-                        milk_foam=50, )
+                        milk_foam=50)
 
         return cappucino
 
@@ -17,21 +17,19 @@ class Coffee:
     def get_latte(cls, *args, **kwargs):
         latte = cls(espresso=30,
                     milk=150,
-                    milk_foam=20, )
+                    milk_foam=20)
 
         return latte
 
     @classmethod
     def get_glasse(cls, *args, **kwargs):
         glasse = cls(espresso=60,
-                     ice_cream=140, )
+                     ice_cream=140)
 
         return glasse
 
     def get_recep(self):
         return {ingridient: ml for ingridient, ml in self.__dict__.items()}
-
-    pass
 
 
 test_latte = Coffee.get_latte()
