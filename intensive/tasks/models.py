@@ -22,6 +22,13 @@ class WorkerManager(models.Manager):
         Строки упорядочены по фамилии и имени сотрудника.
         Каждая строка должна быть в формате вида: Васильев Василий, 888, Подразделение №1
         """
+
+        def string_formater(values):
+            """
+            Функция для форматирования вывода
+            """
+            return ', '.join(map(str, values))
+
         result = self.select_related(
             'department'
         ).order_by(
@@ -34,6 +41,7 @@ class WorkerManager(models.Manager):
             'department__name'
         ).all()
 
+        result = list(map(string_formater, result))
         return result
 
 
