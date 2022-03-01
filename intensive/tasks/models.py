@@ -27,7 +27,7 @@ class WorkerManager(models.Manager):
             """
             Функция для форматирования вывода
             """
-            return ', '.join(map(str, values))
+            return '{} {}, {}, {}'.format(*values)
 
         result = self.select_related(
             'department'
