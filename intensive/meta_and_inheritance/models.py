@@ -1,36 +1,52 @@
 from django.db import models
+from django.db.models import (
+    Q
+)
 
 
 class WorkerManager(models.Manager):
     """
     Менеджер для работы с активными сотрудниками
     """
+
     def get_queryset(self):
         """
         Переопределенный кверисет возвращающий всех сотрудников без директоров
         """
 
-        raise NotImplementedError
+        directors = Director.objects.values_list('tab_num', flat=True)
+        result = super().get_queryset().filter(~Q(tab_num__in=directors))
+        return result
 
 
-class EducationOffice(models.Model):
+class CommonOffice(models.Model):
+    """
+    Абстрактная модель офиса
+    """
+
+    address = models.TextField('Адрес')
+    mail = models.CharField('Адрес почты', max_length=30, )
+
+    class Meta:
+        abstract = True
+
+
+class EducationOffice(CommonOffice):
     """
     Учебный офис
     """
-    address = models.TextField('Адрес')
-    mail = models.CharField('Адрес почты', max_length=30,)
+
     is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'education_office'
 
 
-class GeneralOffice(models.Model):
+class GeneralOffice(CommonOffice):
     """
     Головной офис
     """
-    address = models.TextField('Адрес')
-    mail = models.CharField('Адрес почты', max_length=30)
+
     name = models.TextField('Название головного офиса ')
 
     class Meta:
@@ -41,9 +57,10 @@ class Department(models.Model):
     """
     Подразделение
     """
+
     name = models.CharField('Наименование', max_length=30)
 
-    education_office = models.ForeignKey(EducationOffice, on_delete=models.SET_NULL, null=True )
+    education_office = models.ForeignKey(EducationOffice, on_delete=models.SET_NULL, null=True)
     office = models.ForeignKey(GeneralOffice, on_delete=models.SET_NULL, null=True)
 
     class Meta:
@@ -54,6 +71,7 @@ class Person(models.Model):
     """
     Физическое лицо
     """
+
     first_name = models.CharField('Фамилия', max_length=30)
     last_name = models.CharField('Имя', max_length=30)
 
@@ -65,6 +83,7 @@ class Worker(Person):
     """
     Сотрудник
     """
+
     objects = WorkerManager()
     objects_all = models.Manager()
     startwork_date = models.DateField('Дата выхода на работу', null=True, )
@@ -77,27 +96,41 @@ class Worker(Person):
     class Meta:
         db_table = 'workers'
         verbose_name = 'Сотрудник'
+        indexes = [
+            models.Index(fields=['tab_num']),
+        ]
 
 
 class OrderedWorker(Worker):
     """
-    Модель с  сотрудниками упорядоченными по фамилии и дате приема на работу
+    Proxy-модель сотрудников упорядоченных по фамилии и дате приема на работу
     """
+
     @property
     def startwork_year(self):
         """
         Получить значение года приема на работу
         """
-        raise NotImplementedError
+
+        return self.startwork_date.year
+
+    class Meta:
+        """
+        Сортировка по фамилии(first_name) и дате выхода на работу(startwork_date)
+        """
+
+        ordering = ['first_name', 'startwork_date']
+        proxy = True
 
 
 class Director(Worker):
     """
     Директор
     """
-    # что здесь не хватает?
+
+    objects = models.Manager()
     grade = models.IntegerField('Оценка', default=1)
 
-    class Meta:
+    class Meta(Worker.Meta):
         db_table = 'directors'
         verbose_name = 'Директор'
