@@ -14,8 +14,7 @@ class WorkerManager(models.Manager):
         Переопределенный кверисет возвращающий всех сотрудников без директоров
         """
 
-        directors = Director.objects.values_list('tab_num', flat=True)
-        result = super().get_queryset().filter(~Q(tab_num__in=directors))
+        result = super().get_queryset().filter(director__isnull=True)
         return result
 
 
@@ -97,7 +96,10 @@ class Worker(Person):
         db_table = 'workers'
         verbose_name = 'Сотрудник'
         indexes = [
-            models.Index(fields=['tab_num']),
+            models.Index(name='idx_fname__startw_date__isnull',
+                         fields=['first_name', 'startwork_date'],
+                         condition=~Q(startwork_date__isnull=True),
+                         ),
         ]
 
 
@@ -111,8 +113,8 @@ class OrderedWorker(Worker):
         """
         Получить значение года приема на работу
         """
-
-        return self.startwork_date.year
+        result = self.startwork_date.year if self.startwork_date else None
+        return result
 
     class Meta:
         """
@@ -120,6 +122,7 @@ class OrderedWorker(Worker):
         """
 
         ordering = ['first_name', 'startwork_date']
+
         proxy = True
 
 
