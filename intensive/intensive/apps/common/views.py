@@ -1,9 +1,23 @@
+import json
+
+from django.db.models import (
+    F,
+    Q,
+    Count,
+    Value,
+)
 from django.http import (
     JsonResponse,
+)
+from django.shortcuts import (
+    render,
 )
 from django.views import (
     View,
 )
+
+from recipes.models import CookStep, RecipeProduct
+from users.models import Author, CustomUser
 
 
 class Task1View(View):
@@ -15,13 +29,21 @@ class Task1View(View):
     """
 
     def get(self, request, **kwargs):
-        recipes = list()
+        recipes = Author.objects.filter(
+            ~Q(userrecipe__recipe__isnull=True)
+        ).values_list(
+            'email',
+            'userrecipe__recipe__title',
+            'userrecipe__recipe__description'
+        )
+        recipes = list(recipes)
 
         # Если есть необходимость посмотреть на выполняемые запросы, план запросов через браузер, то нужно
         # раскомментировать строку ниже
         # return render(request, 'task.html', {'json_data': json.dumps(dict(recipes=recipes), ensure_ascii=False)})
 
         # В тестах проверяется формируемый JSON, поэтому нужно возвращать JsonResponse
+
         return JsonResponse(dict(recipes=recipes), json_dumps_params=dict(ensure_ascii=False))
 
 
@@ -42,8 +64,23 @@ class Task2View(View):
     """
 
     def get(self, request, **kwargs):
-        steps = list()
-        products = list()
+        steps = CookStep.objects.filter(
+            recipe__id=1,
+        ).values_list(
+            'title',
+            'description',
+        )
+        steps = list(steps)
+
+        products = RecipeProduct.objects.filter(
+            recipe__id=1,
+        ).values_list(
+            'product__title',
+            'product__description',
+            'count',
+            'unit__abbreviation',
+        )
+        products = list(products)
 
         recipe_data = {
             'steps': steps,
@@ -74,7 +111,22 @@ class Task3View(View):
     """
 
     def get(self, request, **kwargs):
-        recipes = list()
+        recipes = Author.objects.filter(
+            ~Q(userrecipe__recipe__isnull=True)
+        ).annotate(
+            like_count=Count(
+                'userrecipe__recipe__vote',
+                filter=Q(userrecipe__recipe__vote__is_like__exact=True),
+            )
+        ).order_by(
+            '-like_count',
+        ).values_list(
+            'email',
+            'userrecipe__recipe__title',
+            'userrecipe__recipe__description',
+            'like_count',
+        )
+        recipes = list(recipes)
 
         # Если есть необходимость посмотреть на выполняемые запросы, план запросов через браузер, то нужно
         # раскомментировать строки ниже
@@ -85,6 +137,7 @@ class Task3View(View):
         # )
 
         # В тестах проверяется формируемый JSON, поэтому нужно возвращать JsonResponse
+
         return JsonResponse(dict(recipes=recipes), json_dumps_params=dict(ensure_ascii=False, default=str))
 
 
@@ -102,13 +155,39 @@ class Task4View(View):
         - Статус;
         - Email;
         - Количество лайков.
-
+1
     """
 
     def get(self, request, **kwargs):
-        authors = list()
+        authors = Author.objects.annotate(
+            user_role=Value('Автор'),
+            recipes_count=Count(
+                'userrecipe__recipe',
+                filter=~Q(userrecipe__recipe__isnull=True))
+        ).order_by(
+            '-recipes_count',
+            'email',
+        ).values_list(
+            'user_role',
+            'email',
+            'recipes_count',
+        )[:3]
+        authors = list(authors)
 
-        voters = list()
+        voters = CustomUser.objects.annotate(
+            user_role=Value('Пользователь'),
+            like_count=Count(
+                'vote__is_like',
+                filter=Q(vote__is_like=True))
+        ).order_by(
+            '-like_count',
+            'email',
+        ).values_list(
+            'user_role',
+            'email',
+            'like_count',
+        )[:3]
+        voters = list(voters)
 
         data = {
             'authors': authors,
@@ -141,7 +220,18 @@ class Task5View(View):
     """
 
     def get(self, request, **kwargs):
-        recipe_products = list()
+        recipe_products = RecipeProduct.objects.filter(
+            recipe__id=3,
+        ).annotate(
+            count_x5=F('count') * 5
+        ).values_list(
+            'recipe__title',
+            'recipe__description',
+            'product__title',
+            'count_x5',
+            'unit__abbreviation'
+        )
+        recipe_products = list(recipe_products)
 
         # Если есть необходимость посмотреть на выполняемые запросы, план запросов через браузер, то нужно
         # раскомментировать строки ниже
