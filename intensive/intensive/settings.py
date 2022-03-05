@@ -48,6 +48,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'day_10.middleware.StatisticMiddleware',
+    'day_10.middleware.FormatterMiddleware',
+    'day_10.middleware.CheckErrorMiddleware',
 ]
 
 ROOT_URLCONF = 'intensive.urls'
