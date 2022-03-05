@@ -38,10 +38,10 @@ def calc(request):
     Результат:  JsonResponse вида {'3*3': 9, '10-2': 8, '10/5': 2}
     """
 
-    dict_request = dict(request.GET)
-    delimeter = dict_request.get('delimiter')[0] if dict_request.get('delimiter') else ','
+    dict_request = request.GET
+    delimeter = dict_request.get('delimiter') if dict_request.get('delimiter') else ','
 
-    expressions_list = dict_request.get('maths')[0].split(delimeter)
+    expressions_list = dict_request.get('maths').split(delimeter)
     response = {expression: eval_expr(expression) for expression in expressions_list}
     response = JsonResponse(response)
 
