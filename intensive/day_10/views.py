@@ -40,9 +40,9 @@ def calc(request):
 
     dict_request = dict(request.GET)
     delimeter = dict_request.get('delimiter')[0] if dict_request.get('delimiter') else ','
-    expressions_list = dict_request['maths'][0].split(delimeter)
-    answers_list = list(map(eval_expr, expressions_list))
 
-    response = JsonResponse({x: y for x, y in list(zip(expressions_list, answers_list))})
+    expressions_list = dict_request['maths'][0].split(delimeter)
+    response = {expression: eval_expr(expression) for expression in expressions_list}
+    response = JsonResponse(response)
 
     return response

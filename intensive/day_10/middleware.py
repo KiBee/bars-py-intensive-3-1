@@ -63,5 +63,5 @@ class CheckErrorMiddleware(MiddlewareMixin):
     """
 
     @staticmethod
-    def process_exception(exception):
+    def process_exception(request,exception):
         return HttpResponse(f"Ошибка: {exception}")
