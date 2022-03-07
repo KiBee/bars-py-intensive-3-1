@@ -1,15 +1,18 @@
 import json
-
-from django.http import HttpResponse
-from django.http import JsonResponse
 import time
+from sys import (
+    getsizeof,
+)
 
+from django.http import (
+    HttpResponse,
+    JsonResponse,
+)
 from django.utils.deprecation import (
     MiddlewareMixin,
 )
-
-from sys import (
-    getsizeof,
+from django.db import (
+    connection,
 )
 
 
@@ -63,5 +66,21 @@ class CheckErrorMiddleware(MiddlewareMixin):
     """
 
     @staticmethod
-    def process_exception(request,exception):
+    def process_exception(request, exception):
         return HttpResponse(f"Ошибка: {exception}")
+
+
+class LoggingSQLMiddleware:
+    """
+    Логирование SQL-запросов
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        for query in connection.queries:
+            print(f"Время на запрос: {query['time']} сек, SQL-запрос:", {query['sql']})
+
+        return response

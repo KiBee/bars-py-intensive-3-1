@@ -20,4 +20,5 @@ from day_10 import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('calc/', views.calc, name='calc'),
+    path('test_view/', views.test_view, name='test_view'),
 ]

@@ -2,6 +2,10 @@ from django.http import JsonResponse
 import ast
 import operator as op
 
+from day_10.models import (
+    Worker,
+)
+
 operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
              ast.Div: op.truediv, ast.Pow: op.pow, ast.BitXor: op.xor,
              ast.USub: op.neg}
@@ -39,10 +43,31 @@ def calc(request):
     """
 
     dict_request = request.GET
-    delimeter = dict_request.get('delimiter') if dict_request.get('delimiter') else ','
+    delimeter = dict_request.get('delimiter', ',')
 
     expressions_list = dict_request.get('maths').split(delimeter)
     response = {expression: eval_expr(expression) for expression in expressions_list}
     response = JsonResponse(response)
+
+    return response
+
+
+def test_view(request):
+    """
+    Представление для демонстрации работы
+    LoggingSQLMiddleware(Логирование SQL-запросов)
+    """
+
+    workers_info = Worker.objects.get_workers_info()
+    active_workers = Worker.objects.get_queryset()
+
+    workers_info = list(workers_info)
+    active_workers = list(active_workers)
+
+    about_workers = {
+        'workers_info': workers_info,
+        'active_workers': active_workers,
+    }
+    response = JsonResponse(about_workers)
 
     return response

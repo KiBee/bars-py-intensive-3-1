@@ -51,6 +51,7 @@ MIDDLEWARE = [
     'day_10.middleware.StatisticMiddleware',
     'day_10.middleware.FormatterMiddleware',
     'day_10.middleware.CheckErrorMiddleware',
+    'day_10.middleware.LoggingSQLMiddleware',
 ]
 
 ROOT_URLCONF = 'intensive.urls'
