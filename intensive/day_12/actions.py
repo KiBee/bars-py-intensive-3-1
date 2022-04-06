@@ -1,16 +1,25 @@
+from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.template import loader
 from m3.actions import ActionPack, Action, ACD
 from m3_ext.ui.results import ExtUIScriptResult
+from recordpack.provider import DjangoModelProvider
 from recordpack.recordpack import BaseRecordPack
-from day_12.providers import TestProvider, test_data, GridItem
-from day_12.ui import MasterPanel, MasterWindow, GridWindow, ItemWindow
+
+from day_12.ui import (
+    MasterPanel,
+    MasterWindow,
+    GridWindow,
+    TestEditItemWindow,
+    TestCreateItemWindow
+)
 
 
 class MasterPack(ActionPack):
     """
     Корневой пак для приложения
     """
+
     url = ''
 
     def __init__(self):
@@ -32,6 +41,7 @@ class MasterAction(Action):
     """
     Корневой экшен - отображение страницы приложения
     """
+
     url = '/'
 
     def run(self, request, context):
@@ -49,6 +59,7 @@ class WindowAction(Action):
     """
     Пример экшена окна с декларацией контекста
     """
+
     url = '/win1'
 
     def context_declaration(self):
@@ -70,6 +81,7 @@ class GridAction(Action):
     """
     Пример окна с гридом
     """
+
     url = '/gridwin'
 
     def run(self, request, context):
@@ -86,13 +98,15 @@ class MasterRecordPack(BaseRecordPack):
     Пример RecordPack
     """
     url = '/grid'
-    provider = TestProvider(
-        data_source=test_data,
-        object_class=GridItem,
+    provider = DjangoModelProvider(
+        data_source=get_user_model(),
     )
-    edit_window = ItemWindow
-    new_window = ItemWindow
+    edit_window = TestEditItemWindow
+    new_window = TestCreateItemWindow
 
     quick_filters = {
-        'name': {'control': {'xtype': 'textfield'}},
+        'username': {'control': {'xtype': 'textfield'}},
+        'first_name': {'control': {'xtype': 'textfield'}},
+        'last_name': {'control': {'xtype': 'textfield'}},
+        'email': {'control': {'xtype': 'textfield'}},
     }
